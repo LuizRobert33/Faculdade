@@ -1,0 +1,2 @@
+Olá, nessa pasta está contido as atividades que fiz durante a faculdade de Ciências da Computação
+na linguagem C, e deixo os projetos aqui para fins de análise estudatins.
