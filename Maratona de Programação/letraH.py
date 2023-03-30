@@ -1,6 +1,3 @@
-
-
-
 n, k = map(int, input().split())
 blocks = []
 for i in range(n):
