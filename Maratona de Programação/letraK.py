@@ -11,19 +11,6 @@ I##sso ´e completamente inaceit´avel: nenhuma oportunidade de comer de gra¸ca
 ##ssas refei¸c˜oes ser˜ao servidas, yi
 ##. Vocˆe precisa estar acordado no in´ıcio do minuto em que a refei¸c˜ao
 ##ser´a servida para comˆe-la, caso contr´ario vocˆe n˜ao ser´a servido. Como vocˆe est´a sempre com fome, a
-##refei¸c˜ao ser´a devorada instantaneamente.
-##Agora vocˆe quer saber, para ter o vˆoo perfeito, vocˆe consegue ficar descansado e ainda assim comer
-##todas as refei¸c˜oes durante o vˆoo?
-##Entrada
-## primeira linha da entrada cont´em trˆes inteiros, T, D, M (1 ≤ T, D ≤ 105
-#3, 0 ≤ M ≤ 1000), que
-##representam, respectivamente, o n´umero de minutos consecutivos que vocˆe precisa dormir para ficar
-##descansado, a dura¸c˜ao do vˆoo e o n´umero de refei¸c˜oes que ser˜ao servidas durante o vˆoo.
-##Cada uma das M linhas seguintes cont´em um inteiro yi (0 ≤ yi ≤ D). Esses inteiros representam
-##os tempos nos quais cada refei¸c˜ao ser´a servida, e s˜ao dados em ordem cronol´ogica.
-##Sa´ıda
-##Imprima uma ´unica linha contendo um ´unico caractere. Se vocˆe consegue descansar durante o vˆoo
-##e ainda assim comer todas as refei¸c˜oes, imprima ‘Y’; caso contr´ario, imprima ‘N’.
 
 t, d, m = map(int, input().split())
 
