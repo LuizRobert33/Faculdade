@@ -5,7 +5,7 @@ int main(){
     C=B;
     B=A;
     A=C;
-    printf("%d%d",A,C);
+    printf("\n%d%d\n",A,B);
     return 0;
     
 
