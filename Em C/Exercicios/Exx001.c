@@ -8,5 +8,5 @@ int main(){
     printf("Digite o segundo numero: ");
     scanf("%d",&N2);
     Total = N1 + N2;
-    printf("a soma total é %d",Total);
+    printf("\n a soma total é %d\n",Total);
 }
