@@ -1,18 +1,25 @@
-t, d, m = map(int, input().split())
+def verificar_voo_perfeito(T, D, M, refeicoes):
+    tempo_acordado = 0
+
+    for i in range(M):
+        if refeicoes[i] - tempo_acordado > T:
+            return 'N'
+        
+        tempo_acordado = max(tempo_acordado, refeicoes[i])
+
+    if D - tempo_acordado > T:
+        return 'N'
+    
+    return 'Y'
+
+T, D, M = map(int, input().split())
 
 refeicoes = []
-for i in range(m):
-    refeicoes.append(int(input()))
+for _ in range(M):
+    yi = int(input())
+    refeicoes.append(yi)
 
-i = 0
-while i < len(refeicoes) and refeicoes[i] - t >= i:
-    i += 1
+resultado = verificar_voo_perfeito(T, D, M, refeicoes)
 
-j = i
-while j < len(refeicoes) and refeicoes[j] - t < j:
-    j += 1
 
-if i == j:
-    print('Y')
-else:
-    print('N')
+print(resultado)
