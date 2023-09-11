@@ -11,6 +11,12 @@ mensagens = {
     "-4": "Bonjour!",
     "--it": "Buongiorno!",
     "-5": "Buongiorno!",
+    "--co": "좋은 아침이에요",
+    "-6": "좋은 아침이에요",
+    "--jp": "おはよう",
+    "-7": "おはよう",
+    "--ru":"доброе утро",
+    "-8":"доброе утро"
 }
 
 def erro():
@@ -20,6 +26,7 @@ def erro():
     print("--es ou -3 (idioma espanhol)")
     print("--fr ou -4 (idioma francês)")
     print("--it ou -5 (idioma italiano)")
+    print("--co ou -6 (idioma coreano)")
     print("--help ou -h (documentação do software)")
     print("--version ou -v (versão do software)")
 
@@ -38,8 +45,14 @@ elif sys.argv[1] in ["--help", "-h"]:
     print("-3, --es -->  Saudação em espanhol.")
     print("-4, --fr -->  Saudação em francês.")
     print("-5, --it -->  Saudação em italiano.")
+    print("-6, --co -->  Saudação em Coreano")
+    print("-7, --jp -->  Saudação em Japones")
+    print("-8, --ru -->  Saudação em Russo")
 elif sys.argv[1] == "--version" or sys.argv[1] == "-v":
     print("Bom Dia - Versão 2.9")
+    print("Programa feito por Luiz Roberto ©")
+    print("Feito para a Disciplina de Linguagem de Programação 1")
+    print("Ministra pelo Professor Alex Pontes")
 else:
     print("Erro: Opção incorreta. Utilize uma das opções válidas.")
     erro()
