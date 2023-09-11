@@ -11,6 +11,12 @@ mensagens = {
     "-4": "Bonjour!",
     "--it": "Buongiorno!",
     "-5": "Buongiorno!",
+    "--co": "좋은 아침이에요",
+    "-6": "좋은 아침이에요",
+    "--jp": "おはよう",
+    "-7": "おはよう",
+    "--ru": "доброе утро",
+    "-8": "доброе утро"
 }
 
 def erro():
@@ -20,26 +26,39 @@ def erro():
     print("--es ou -3 (idioma espanhol)")
     print("--fr ou -4 (idioma francês)")
     print("--it ou -5 (idioma italiano)")
+    print("--co ou -6 (idioma coreano)")
+    print("--jp ou -7 (idioma japonês)")
+    print("--ru ou -8 (idioma russo)")
     print("--help ou -h (documentação do software)")
     print("--version ou -v (versão do software)")
 
 if len(sys.argv) != 2:
     print("Erro: Forneça uma opção.")
     erro()
-elif sys.argv[1] in ["--help", "-h"]:
-    print("Bom Dia - Software de saudação em vários idiomas.")
-    print("Uso:")
-    print("bomdia opção")
-    print("Opções:")
-    print("-h, --help Mostrar esta mensagem de ajuda.")
-    print("-v, --version Mostrar a versão do software.")
-    print("-1, --pt --> Saudação em português.")
-    print("-2, --en -->  Saudação em inglês.")
-    print("-3, --es -->  Saudação em espanhol.")
-    print("-4, --fr -->  Saudação em francês.")
-    print("-5, --it -->  Saudação em italiano.")
-elif sys.argv[1] == "--version" or sys.argv[1] == "-v":
-    print("Bom Dia - Versão 2.9")
 else:
-    print("Erro: Opção incorreta. Utilize uma das opções válidas.")
-    erro()
+    opcao = sys.argv[1]
+    if opcao in mensagens:
+        print(mensagens[opcao])
+    elif opcao in ["--help", "-h"]:
+        print("Bom Dia - Software de saudação em vários idiomas.")
+        print("Uso:")
+        print("bomdia opção")
+        print("Opções:")
+        print("-h, --help Mostrar esta mensagem de ajuda.")
+        print("-v, --version Mostrar a versão do software.")
+        print("--pt --> Saudação em português.")
+        print("--en -->  Saudação em inglês.")
+        print("--es -->  Saudação em espanhol.")
+        print("--fr -->  Saudação em francês.")
+        print("--it -->  Saudação em italiano.")
+        print("--co -->  Saudação em Coreano")
+        print("--jp -->  Saudação em Japonês")
+        print("--ru -->  Saudação em Russo")
+    elif opcao in ["--version", "-v"]:
+        print("Bom Dia - Versão 2.9")
+        print("Programa feito por Luiz Roberto ©")
+        print("Feito para a Disciplina de Linguagem de Programação 1")
+        print("Ministrada pelo Professor Alex Pontes")
+    else:
+        print("Erro: Opção incorreta. Utilize uma das opções válidas.")
+        erro()
