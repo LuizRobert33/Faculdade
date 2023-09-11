@@ -27,6 +27,8 @@ def erro():
     print("--fr ou -4 (idioma francês)")
     print("--it ou -5 (idioma italiano)")
     print("--co ou -6 (idioma coreano)")
+    print("--jp ou -7 (idioma japones)")
+    print("--ru ou -8 (idioma russo)")
     print("--help ou -h (documentação do software)")
     print("--version ou -v (versão do software)")
 
