@@ -1,12 +1,12 @@
-Campeonato: fla
-Time: e
+Campeonato: Brasileirao
+Time: flamengo
+Jogador: luiz - Brasileiro
 Jogador: w - Brasileiro
+Jogador: w - Estrangeiro
+Jogador: w - Estrangeiro
+Jogador: 2 - Brasileiro
 Jogador: w - Brasileiro
-Jogador: w - Brasileiro
-Jogador: w - Brasileiro
-Jogador: w - Brasileiro
-Jogador: w - Brasileiro
-Jogador: w - Brasileiro
+Jogador: w - Estrangeiro
 Jogador: w - Brasileiro
 Jogador: w - Brasileiro
 Jogador: w - Brasileiro
@@ -14,8 +14,8 @@ Jogador: w - Brasileiro
 Jogador: w - Brasileiro
 
 Campeonato: 
-Time: lll
-Jogador: w - Brasileiro
+Time: cruzeiro
+Jogador: w - Estrangeiro
 Jogador: w - Brasileiro
 Jogador: w - Brasileiro
 Jogador: w - Brasileiro
