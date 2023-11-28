@@ -22,7 +22,7 @@ typedef struct {
 } Time;
 
 void adicionarJogador(Time *time) {
-    int contador = time->numero_jogadores + 1; // Inicia o contador com o próximo número
+    int contador = time->numero_jogadores + 1;
     if (contador <= maximo_jogadores) {
         printf("Informe o nome do %do jogador: ", contador);
         scanf("%s", time->jogadores[time->numero_jogadores].nome);
@@ -49,7 +49,7 @@ void adicionarJogador(Time *time) {
 void cadastrarTime(Time *times, int *num_times) {
     if (*num_times < maximo_times) {
         if (*num_times == 0) {
-            // Solicitar o nome do campeonato apenas no primeiro time
+            
             printf("Informe o nome do campeonato: ");
             scanf("%s", times[*num_times].nome_campeonato);
         }
@@ -69,7 +69,7 @@ void cadastrarTime(Time *times, int *num_times) {
 
         if (times[*num_times].numero_jogadores < minimo_jogadores || times[*num_times].numero_jogadores > maximo_jogadores) {
             printf("Erro: O time deve ter entre %d e %d jogadores. Seu time tem menos que isso entao nao sera possivel registralo no torneio.\n", minimo_jogadores, maximo_jogadores);
-            // Não é necessário reiniciar o contador de times
+            
             *num_times -= 1;
         } else {
             (*num_times)++;
@@ -116,8 +116,7 @@ int main() {
     printf("1 - voce pode cadastra no maximo 10 equipes\n");
     printf("2 - Cada equipe pode ter no minimo 11 jogadores e no maximo 18.\n");
     printf("3 - cada equipe pode ter no maximo 3 jogadores estrageiros.\n");
-    printf("4 - caso a equipe tenha menos de 11 ou mais de 18. a equipe e automaticamente excluida da competicao por nao atender aos requisitos.\n");
-    printf("5 - em caso de mais de 3 jogadores estrageiros o Usuario podera tentar cadastra novamente um jogador com tanto que esse nao seja estrageiro.\n");
+    printf("4 - em caso de mais de 3 jogadores estrageiros o Usuario podera tentar cadastra novamente um jogador com tanto que esse nao seja estrageiro.\n");
     Time times[maximo_times];
     int num_times = 0;
 
