@@ -24,7 +24,7 @@ typedef struct {
 void adicionarJogador(Time *time) {
     int contador = time->numero_jogadores + 1;
     if (contador <= maximo_jogadores) {
-        printf("Informe o nome do %do jogador: ", contador);
+        printf("Informe o nome do o jogador: ", contador);
         scanf("%s", time->jogadores[time->numero_jogadores].nome);
 
         printf("O jogador e estrangeiro? (1 para sim, 0 para nao): ");
@@ -127,7 +127,7 @@ int main() {
         scanf("%d", &opcao);
     } while (opcao);
 
-    mostrarTimes(times, num_times);
+
     salvar(times, num_times);
 
     return 0;
