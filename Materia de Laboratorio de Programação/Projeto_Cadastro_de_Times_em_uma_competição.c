@@ -21,13 +21,14 @@ typedef struct {
     int numero_estrangeiros;
 } Time;
 
+// Função para adicionar jogador a um time
 void adicionarJogador(Time *time) {
     int contador = time->numero_jogadores + 1;
     if (contador <= MAX_JOGADORES) {
         printf("Informe o nome do jogador: ");
         scanf(" %[^\n]", time->jogadores[time->numero_jogadores].nome);
 
-        printf("O jogador e estrangeiro? (1 para sim, 0 para não): ");
+        printf("O jogador é estrangeiro? (1 para sim, 0 para não): ");
         scanf("%d", &time->jogadores[time->numero_jogadores].estrangeiro);
 
         if (time->jogadores[time->numero_jogadores].estrangeiro) {
@@ -41,10 +42,11 @@ void adicionarJogador(Time *time) {
         
         time->numero_jogadores++;
     } else {
-        printf("Erro: Muitos jogadores. Nao e possivel cadastrar mais jogadores.\n");
+        printf("Erro: Muitos jogadores. Não é possível cadastrar mais jogadores.\n");
     }
 }
 
+// Função para cadastrar um time
 void cadastrarTime(Time *times, int *num_times) {
     if (*num_times < MAX_TIMES) {
         if (*num_times == 0) {
@@ -66,18 +68,22 @@ void cadastrarTime(Time *times, int *num_times) {
         } while (opcao);
 
         if (times[*num_times].numero_jogadores < MIN_JOGADORES || times[*num_times].numero_jogadores > MAX_JOGADORES) {
-            printf("Erro: O time deve ter entre %d e %d jogadores. Seu time tem menos que isso entao nao sera possivel registra-lo no torneio.\n", MIN_JOGADORES, MAX_JOGADORES);
+            printf("Erro: O time deve ter entre %d e %d jogadores. Seu time tem menos que isso, então não será possível registrá-lo no torneio.\n", MIN_JOGADORES, MAX_JOGADORES);
             
-            *num_times -= 1;
+            
+            printf("Compile o programa novamente para poder registrar os times na competição.\n");
+
+            exit(EXIT_FAILURE);
         } else {
             (*num_times)++;
         }
     } else {
-        printf("Erro: Muitos times. Nao e possível cadastrar mais times.\n");
+        printf("Erro: Muitos times. Não é possível cadastrar mais times.\n");
     }
 }
 
-void salvar(Time *times, int num_times) {
+// Função para salvar os times em um arquivo
+void salvarTimes(Time *times, int num_times) {
     FILE *arquivo = fopen("times.txt", "w");
     if (arquivo == NULL) {
         perror("Erro ao abrir o arquivo");
@@ -99,6 +105,7 @@ void salvar(Time *times, int num_times) {
     fclose(arquivo);
 }
 
+// Função para mostrar a lista de times
 void mostrarTimes(Time *times, int num_times) {
     printf("\nLista de Times:\n");
     for (int i = 0; i < num_times; i++) {
@@ -108,13 +115,15 @@ void mostrarTimes(Time *times, int num_times) {
     }
 }
 
+// Função principal
 int main() {
-    printf("BEM VINDO AO PROGRAMA PARA CRIAR E CADASTRAR TIMES NA SUA PROPRIA COMPETICAO. DIVIRTA-SE\n");
+    printf("BEM VINDO AO PROGRAMA PARA CADASTRAR TIMES NA SUA PROPRIA COMPETICAO. DIVIRTA-SE\n");
     printf("Vamos as Regras:\n");
-    printf("1 - Voce pode cadastrar no maximo 10 equipes\n");
-    printf("2 - Cada equipe pode ter no minimo 11 jogadores e no maximo 18.\n");
-    printf("3 - Cada equipe pode ter no maximo 3 jogadores estrangeiros.\n");
-    printf("4 - Em caso de mais de 3 jogadores estrangeiros, o usuario podera tentar cadastrar novamente um jogador, desde que este nao seja estrangeiro.\n");
+    printf("1 - Você pode cadastrar no máximo 10 equipes.\n");
+    printf("2 - Cada equipe pode ter no mínimo 11 jogadores e no máximo 18.\n");
+    printf("3 - Cada equipe pode ter no máximo 3 jogadores estrangeiros.\n");
+    printf("4 - Em caso de mais de 3 jogadores estrangeiros, o usuário poderá tentar cadastrar novamente um jogador, desde que este não seja estrangeiro.\n");
+    printf("5 - Em caso de times com menos de 11 jogadores ou mais de 18, não será possível sua inscrição na competição e o Programa precisara ser reiniciado.\n");
 
     Time times[MAX_TIMES];
     int num_times = 0;
@@ -126,7 +135,7 @@ int main() {
         scanf("%d", &opcao);
     } while (opcao);
 
-    salvar(times, num_times);
+    salvarTimes(times, num_times);
 
     return 0;
 }
