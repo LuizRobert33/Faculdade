@@ -1,0 +1,21 @@
+Campeonato: brasil
+Time: flamengo
+Jogador: luiz - Estrangeiro
+Jogador: w - Estrangeiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+Jogador: w - Brasileiro
+
