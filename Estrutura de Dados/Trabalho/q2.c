@@ -59,9 +59,6 @@ int main() {
   int id = 3;
   List_remove(l, &id, Player_cmp);
 
-
- 
-
   List_free(l);
 
   return 0;

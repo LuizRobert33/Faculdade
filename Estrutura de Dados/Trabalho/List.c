@@ -33,18 +33,39 @@ void invert_recursive(Node **head, Node *current, Node *prev) {
 
 int List_invert(List *l) {
     if (!l || !l->first) {
-        return 0; // Retorna 0 se a lista for vazia ou nula
+        return 0; 
     }
     
     invert_recursive(&(l->first), l->first, NULL);
     
-    // Após a inversão, a nova cauda (last) é o antigo primeiro elemento
+    
     l->last = l->first;
     while (l->last->next != NULL) {
         l->last = l->last->next;
     }
     
     return 1; // Sucesso
+}
+
+List *List_concat(List *l1, List *l2) {
+    List *l3 = List_alloc();
+    if (!l3) {
+        return NULL; 
+    }
+
+    Node *current = l1 ? l1->first : NULL;
+    while (current) {
+        List_insert(l3, current->value);
+        current = current->next;
+    }
+
+    current = l2 ? l2->first : NULL;
+    while (current) {
+        List_insert(l3, current->value);
+        current = current->next;
+    }
+
+    return l3;
 }
 
 List *List_alloc() {

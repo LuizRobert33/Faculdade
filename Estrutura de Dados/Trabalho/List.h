@@ -9,3 +9,5 @@ int   List_getLength(List *l);
 void  List_print(List *l, void (*print)(void*));
 int   List_count(List *l);  
 int   List_invert(List *l);  
+List *List_concat(List *l1, List *l2);
+
