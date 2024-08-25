@@ -50,9 +50,9 @@ int main() {
     List_insert(l, &p[4]);
 
     printf("Lista de jogadores:\n");
-    List_print(l, Player_print);
+     List_print(l, Player_print);
 
-    printf("Numero de elementos na lista: %d\n", List_count(l));
+    //printf("Numero de elementos na lista: %d\n", List_count(l));
     
 
     printf("Invertendo a lista de jogadores...\n");
