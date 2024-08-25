@@ -106,27 +106,27 @@ void generateUnbalancedExpression(char* exp, int length) {
 }
 
 int main() {
-    srand(time(0)); // Inicializa o gerador de números aleatórios
+    srand(time(0)); // Inicializa o gerador de numeros aleatorios
 
     int length = 10;
     char balancedExp[length + 1];
     char unbalancedExp[length + 1];
 
-    // Gera e testa expressões balanceadas
+    // Gera e testa expressoes balanceadas
     generateBalancedExpression(balancedExp, length);
-    printf("Expressão  gerada: %s\n", balancedExp);
+    printf("Expressao gerada: %s\n", balancedExp);
     if (isBalanced(balancedExp))
-        printf("A expressão  está balanceada.\n");
+        printf("A expressao esta balanceada.\n");
     else
-        printf("A expressão balanceada não está balanceada.\n");
+        printf("A expressao balanceada nao esta balanceada.\n");
 
-    // Gera e testa expressões não balanceadas
+    // Gera e testa expressoes nao balanceadas
     generateUnbalancedExpression(unbalancedExp, length);
-    printf("Expressão  gerada: %s\n", unbalancedExp);
+    printf("Expressao gerada: %s\n", unbalancedExp);
     if (isBalanced(unbalancedExp))
-        printf("A expressão não  está balanceada.\n");
+        printf("A expressao nao esta balanceada.\n");
     else
-        printf("A expressão  não está balanceada.\n");
+        printf("A expressao nao esta balanceada.\n");
 
     return 0;
 }

@@ -52,11 +52,11 @@ int main(){
 
 			dado = (rand() % 6) + 1;
 
-			printf("Você tirou o número %d\n\n", dado);
+			printf("Voce tirou o numero %d\n\n", dado);
 			
 			vitoria = mover_casas(jogador1, dado);
 			if(vitoria == 1){
-				printf("Parabéns você ganhou jogador 1!\n");
+				printf("Parabens voce ganhou jogador 1!\n");
 				break;
 			}
 			
@@ -73,11 +73,11 @@ int main(){
 
 			dado = (rand() % 6) + 1;
 
-			printf("Você tirou o número %d\n\n", dado);
+			printf("Voce tirou o numero %d\n\n", dado);
 
 			vitoria = mover_casas(jogador2, dado);
 			if(vitoria == 1){
-				printf("Parabéns você ganhou jogador 2!\n");
+				printf("Parabens voce ganhou jogador 2!\n");
 				break;
 			}
 			turno = 0;
@@ -85,7 +85,7 @@ int main(){
 		
 		}		
 
-		printf("\nPressione Enter para seguir próximo turno!");
+		printf("\nPressione Enter para seguir proximo turno!");
 		scanf("%*c");
 
 		system("clear");
@@ -127,7 +127,7 @@ int mover_casas(Pilha *pilha, int valor){
 		}
 
 		else{
-			printf("você pisou em uma bomba!\n");
+			printf("voce pisou em uma bomba!\n");
 			while(1){
 				if(pilha_cheia(pilha) || i == 3){
 					break;

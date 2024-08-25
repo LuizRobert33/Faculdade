@@ -52,13 +52,13 @@ int main() {
     printf("Lista de jogadores:\n");
     List_print(l, Player_print);
 
-    printf("Número de elementos na lista: %d\n", List_count(l));
+    printf("Numero de elementos na lista: %d\n", List_count(l));
     
 
     printf("Invertendo a lista de jogadores...\n");
     List_invert(l);
 
-    printf("Lista de jogadores após a inversão:\n");
+    printf("Lista de jogadores apos a inversao:\n");
     List_print(l, Player_print);
 
     List_free(l);
