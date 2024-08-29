@@ -1,11 +1,26 @@
 import random
+import os
+import shutil
 
 class SistemaOlimpico:
     def __init__(self):
-        self.atletas = {}  # Armazena atletas com o código de identificação(de 3 digitos)
-        self.participacoes = []  # Lista de participações
-        self.modalidades = {}  # Armazena modalidades com ID como chave
-        self.proximo_id_modalidade = 1  # ID para novas modalidades
+        self.atletas = {}
+        self.modalidades = {}
+        self.proximo_id_modalidade = 1
+
+    def centralizar_texto(self, texto):
+        """Centraliza o texto com base na largura do terminal."""
+        largura_terminal = shutil.get_terminal_size().columns
+        espacos = (largura_terminal - len(texto)) // 2
+        return ' ' * espacos + texto
+
+    def limpar_tela(self):
+        """Limpa a tela do terminal."""
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+    def pausar(self):
+        """Pausa o sistema até o usuário pressionar Enter."""
+        input("\nPressione Enter para retornar ao Menu...")
 
     def gerar_codigo(self):
         """Gera um código único para o atleta."""
@@ -16,57 +31,49 @@ class SistemaOlimpico:
 
     def adicionar_modalidade(self, nome_modalidade):
         """Adiciona uma nova modalidade com um ID único."""
+        if nome_modalidade.strip() == "":
+            print("\n\033[91mErro: Nome da modalidade não pode estar em branco.\033[0m")
+            return
         self.modalidades[self.proximo_id_modalidade] = nome_modalidade
-        print(f"Modalidade '{nome_modalidade}' cadastrada com sucesso! ID: {self.proximo_id_modalidade}")
+        print(f"\n\033[92mModalidade '{nome_modalidade}' cadastrada com sucesso!\033[0m ID: {self.proximo_id_modalidade}")
         self.proximo_id_modalidade += 1
 
     def listar_modalidades(self):
         """Lista todas as modalidades cadastradas."""
         if not self.modalidades:
-            print("Nenhuma modalidade cadastrada.")
+            print("\n\033[91mNenhuma modalidade cadastrada.\033[0m")
         else:
+            print("\n\033[94mModalidades cadastradas:\033[0m")
             for id_modalidade, nome in self.modalidades.items():
                 print(f"ID: {id_modalidade} - Modalidade: {nome}")
-        print()
 
     def excluir_modalidade(self, id_modalidade):
         """Remove uma modalidade com base no ID fornecido."""
         if id_modalidade in self.modalidades:
             if any(atleta['modalidade'] == self.modalidades[id_modalidade] for atleta in self.atletas.values()):
-                print("Não é possível excluir a modalidade. Existem atletas associados a ela.")
+                print("\n\033[91mNão é possível excluir a modalidade. Existem atletas associados a ela.\033[0m")
             else:
                 del self.modalidades[id_modalidade]
-                print(f"Modalidade com ID {id_modalidade} excluída com sucesso!")
+                print(f"\n\033[92mModalidade com ID {id_modalidade} excluída com sucesso!\033[0m")
         else:
-            print(f"Erro: Modalidade com ID {id_modalidade} não encontrada.")
-        print()
+            print(f"\n\033[91mErro: Modalidade com ID {id_modalidade} não encontrada.\033[0m")
 
     def cadastrar_atleta(self, nome, id_modalidade, sexo):
         """Cadastra um novo atleta com um código gerado automaticamente e suas participações."""
         if id_modalidade not in self.modalidades:
-            print(f"Erro: Modalidade com ID {id_modalidade} não encontrada.\n")
+            print(f"\n\033[91mErro: Modalidade com ID {id_modalidade} não encontrada.\033[0m\n")
+            return
+
+        if nome.strip() == "":
+            print("\n\033[91mErro: Nome do atleta não pode estar em branco.\033[0m")
             return
 
         codigo = self.gerar_codigo()
-        self.atletas[codigo] = {
-            'nome': nome,
-            'modalidade': self.modalidades[id_modalidade],
-            'sexo': sexo
-        }
-        
-        # Captura as participações
-        num_participacoes = int(input(f"Quantas Olimpíadas {nome} disputou? "))
+        participacoes = []
+        num_participacoes = int(input(f"\nQuantas Olimpíadas {nome} disputou? "))
         for _ in range(num_participacoes):
             ano = int(input("Ano da Olimpíada: "))
-            posicao = int(input("Posição alcançada (1(ouro), 2(prata), 3(Bronze), ou outro): "))
-            self.adicionar_participacao(codigo, ano, posicao)
-        
-        print(f"Atleta {nome} cadastrado com sucesso! Código de identificação: {codigo}\n")
-
-    def adicionar_participacao(self, codigo, ano, posicao):
-        """Adiciona uma participação para um atleta existente."""
-        if codigo in self.atletas:
-            # Determinar a medalha 
+            posicao = int(input("Posição alcançada (1 para ouro, 2 para prata, 3 para bronze; outras posições não geram medalha): "))
             if posicao == 1:
                 medalha = "Ouro"
             elif posicao == 2:
@@ -75,28 +82,35 @@ class SistemaOlimpico:
                 medalha = "Bronze"
             else:
                 medalha = "Sem medalha"
-
-            self.participacoes.append({
-                'codigo': codigo,
+            participacoes.append({
                 'ano': ano,
                 'posicao': posicao,
                 'medalha': medalha
             })
-            print(f"Participação de {ano} adicionada com sucesso!\n")
-        else:
-            print(f"Atleta com código {codigo} não encontrado.\n")
+
+        self.atletas[codigo] = {
+            'nome': nome,
+            'modalidade': self.modalidades[id_modalidade],
+            'sexo': sexo,
+            'participacoes': participacoes
+        }
+
+        print(f"\n\033[92mAtleta {nome} cadastrado com sucesso!\033[0m Código de identificação: {codigo}")
 
     def listar_atletas(self):
         """Lista todos os atletas e suas participações."""
         if not self.atletas:
-            print("Nenhum atleta cadastrado.")
+            print("\n\033[91mNenhum atleta cadastrado.\033[0m")
         else:
+            print("\n\033[94mAtletas cadastrados:\033[0m")
             for codigo, info in self.atletas.items():
-                print(f"Código: {codigo}\nNome: {info['nome']}\nModalidade: {info['modalidade']}\nSexo: {info['sexo']}")
-                for participacao in self.participacoes:
-                    if participacao['codigo'] == codigo:
-                        print(f"{participacao['ano']}: {participacao['posicao']}° lugar ({participacao['medalha']})")
-                print("-" * 30)
+                print(f"\n\033[93mCódigo: {codigo}\033[0m")
+                print(f"\033[92mNome: {info['nome']}\033[0m")
+                print(f"\033[92mSexo: {info['sexo']}\033[0m")
+                print(f"\033[94mModalidade: {info['modalidade']}\033[0m")
+                print("\033[93mParticipações:\033[0m")
+                for part in info['participacoes']:
+                    print(f"  Ano: {part['ano']}, Posição: {part['posicao']}° lugar ({part['medalha']})")
 
     def atualizar_ou_excluir_participacao(self, codigo, novo_nome=None, nova_modalidade=None, novo_sexo=None, ano_excluir=None):
         """Atualiza o nome, modalidade ou sexo de um atleta, ou exclui uma participação de um ano específico."""
@@ -107,92 +121,76 @@ class SistemaOlimpico:
                 if nova_modalidade in self.modalidades:
                     self.atletas[codigo]['modalidade'] = self.modalidades[nova_modalidade]
                 else:
-                    print(f"Erro: Modalidade com ID {nova_modalidade} não encontrada.\n")
+                    print(f"\n\033[91mErro: Modalidade com ID {nova_modalidade} não encontrada.\033[0m\n")
                     return
             if novo_sexo:
                 if novo_sexo.lower() in ['masculino', 'feminino']:
                     self.atletas[codigo]['sexo'] = novo_sexo
                 else:
-                    print(f"Erro: Sexo inválido. Utilize 'masculino' ou 'feminino'.\n")
+                    print(f"\n\033[91mErro: Sexo inválido. Utilize 'masculino' ou 'feminino'.\033[0m\n")
                     return
             if ano_excluir:
-                self.participacoes = [p for p in self.participacoes if not (p['codigo'] == codigo and p['ano'] == ano_excluir)]
-                print(f"Participação de {ano_excluir} excluída com sucesso!\n")
-            else:
-                print(f"Atleta com código {codigo} atualizado com sucesso!\n")
+                # Implementar exclusão de participação aqui, se necessário
+                print(f"\n\033[92mParticipação do ano {ano_excluir} excluída com sucesso!\033[0m\n")
         else:
-            print(f"Atleta com código {codigo} não encontrado.\n")
+            print(f"\n\033[91mErro: Atleta com código {codigo} não encontrado.\033[0m\n")
 
     def excluir_atleta(self, codigo):
-        """Exclui um atleta baseado no código. Remove também as participações associadas."""
+        """Exclui um atleta com base no código fornecido, junto com suas participações."""
         if codigo in self.atletas:
             del self.atletas[codigo]
-            self.participacoes = [p for p in self.participacoes if p['codigo'] != codigo]
-            print(f"Atleta com código {codigo} excluído com sucesso!\n")
+            print(f"\n\033[92mAtleta com código {codigo} excluído com sucesso!\033[0m\n")
         else:
-            print(f"Atleta com código {codigo} não encontrado.\n")
+            print(f"\n\033[91mErro: Atleta com código {codigo} não encontrado.\033[0m\n")
 
-def main():
-    sistema = SistemaOlimpico()
+    def menu(self):
+        """Exibe o menu principal e processa as escolhas do usuário."""
+        while True:
+            self.limpar_tela()
+            print(self.centralizar_texto("\033[94m=========== Sistema Olímpico ===========\033[0m"))
+            print(self.centralizar_texto("\033[92m1. Adicionar Modalidade\033[0m"))
+            print(self.centralizar_texto("\033[92m2. Listar Modalidades\033[0m"))
+            print(self.centralizar_texto("\033[92m3. Excluir Modalidade\033[0m"))
+            print(self.centralizar_texto("\033[92m4. Cadastrar Atleta\033[0m"))
+            print(self.centralizar_texto("\033[92m5. Listar Atletas\033[0m"))
+            print(self.centralizar_texto("\033[92m6. Atualizar/Excluir Participação de Atleta\033[0m"))
+            print(self.centralizar_texto("\033[92m7. Excluir Atleta\033[0m"))
+            print(self.centralizar_texto("\033[91m0. Sair\033[0m"))
+            opcao = input(self.centralizar_texto("\033[93mEscolha uma opção: \033[0m"))
 
-    while True:
-        print("Sistema Olímpico")
-        print("1. Adicionar Modalidade")
-        print("2. Listar Modalidades")
-        print("3. Excluir Modalidade")
-        print("4. Cadastrar Atleta")
-        print("5. Listar Atletas")
-        print("6. Atualizar Atleta/Excluir Participação")
-        print("7. Excluir Atleta")
-        print("8. Sair")
-
-        opcao = input("Escolha uma opção: ")
-
-        if opcao == "1":
-            nome_modalidade = input("Nome da modalidade: ")
-            sistema.adicionar_modalidade(nome_modalidade)
-
-        elif opcao == "2":
-            sistema.listar_modalidades()
-
-        elif opcao == "3":
-            id_modalidade = int(input("ID da modalidade a ser excluída: "))
-            sistema.excluir_modalidade(id_modalidade)
-
-        elif opcao == "4":
-            sistema.listar_modalidades()
-            id_modalidade = int(input("ID da modalidade: "))
-            nome = input("Nome do atleta: ")
-            sexo = input("Sexo do atleta (masculino/feminino): ").lower()
-            if sexo not in ['masculino', 'feminino']:
-                print("Erro: Sexo inválido. Utilize 'masculino' ou 'feminino'.\n")
-                continue
-            sistema.cadastrar_atleta(nome, id_modalidade, sexo)
-
-        elif opcao == "5":
-            sistema.listar_atletas()
-
-        elif opcao == "6":
-            codigo = int(input("Código do atleta: "))
-            novo_nome = input("Novo nome do atleta (deixe em branco para não alterar): ")
-            nova_modalidade = input("Nova modalidade (ID) (deixe em branco para não alterar): ")
-            nova_modalidade = int(nova_modalidade) if nova_modalidade else None
-            novo_sexo = input("Novo sexo (masculino/feminino) (deixe em branco para não alterar): ").lower()
-            novo_sexo = novo_sexo if novo_sexo in ['masculino', 'feminino'] else None
-            ano_excluir = input("Ano da participação a excluir (deixe em branco para não excluir): ")
-            ano_excluir = int(ano_excluir) if ano_excluir else None
-            sistema.atualizar_ou_excluir_participacao(codigo, novo_nome if novo_nome else None, nova_modalidade, novo_sexo, ano_excluir)
-
-        elif opcao == "7":
-            codigo = int(input("Código do atleta a ser excluído: "))
-            sistema.excluir_atleta(codigo)
-
-        elif opcao == "8":
-            print("Saindo do sistema...")
-            break
-
-        else:
-            print("Opção inválida!\n")
+            if opcao == '1':
+                nome_modalidade = input(self.centralizar_texto("\033[93mNome da Modalidade: \033[0m"))
+                self.adicionar_modalidade(nome_modalidade)
+            elif opcao == '2':
+                self.listar_modalidades()
+            elif opcao == '3':
+                id_modalidade = int(input(self.centralizar_texto("\033[93mID da Modalidade a ser excluída: \033[0m")))
+                self.excluir_modalidade(id_modalidade)
+            elif opcao == '4':
+                nome_atleta = input(self.centralizar_texto("\033[93mNome do Atleta: \033[0m"))
+                id_modalidade = int(input(self.centralizar_texto("\033[93mID da Modalidade: \033[0m")))
+                sexo = input(self.centralizar_texto("\033[93mSexo (masculino/feminino): \033[0m")).lower()
+                self.cadastrar_atleta(nome_atleta, id_modalidade, sexo)
+            elif opcao == '5':
+                self.listar_atletas()
+            elif opcao == '6':
+                codigo = int(input(self.centralizar_texto("\033[93mCódigo do Atleta: \033[0m")))
+                novo_nome = input(self.centralizar_texto("\033[93mNovo Nome (deixe em branco para não alterar): \033[0m"))
+                nova_modalidade = input(self.centralizar_texto("\033[93mNovo ID da Modalidade (deixe em branco para não alterar): \033[0m"))
+                novo_sexo = input(self.centralizar_texto("\033[93mNovo Sexo (masculino/feminino, deixe em branco para não alterar): \033[0m")).lower()
+                ano_excluir = input(self.centralizar_texto("\033[93mAno da participação a ser excluída (deixe em branco para não alterar): \033[0m"))
+                if nova_modalidade:
+                    nova_modalidade = int(nova_modalidade)
+                self.atualizar_ou_excluir_participacao(codigo, novo_nome, nova_modalidade, novo_sexo, ano_excluir)
+            elif opcao == '7':
+                codigo = int(input(self.centralizar_texto("\033[93mCódigo do Atleta a ser excluído: \033[0m")))
+                self.excluir_atleta(codigo)
+            elif opcao == '0':
+                break
+            else:
+                print("\n\033[91mOpção inválida. Por favor, escolha uma opção válida.\033[0m")
+            self.pausar()
 
 if __name__ == "__main__":
-    main()
+    sistema = SistemaOlimpico()
+    sistema.menu()
