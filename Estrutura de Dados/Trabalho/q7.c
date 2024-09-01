@@ -24,6 +24,7 @@ typedef struct {
     Node* tras;
 } Fila;
 
+// Funções de inicialização
 void inicializaEstacionamento(Estacionamento* est) {
     est->topo = -1;
 }
@@ -33,6 +34,7 @@ void inicializaFila(Fila* fila) {
     fila->tras = NULL;
 }
 
+// Funções para estacionamento
 int estacionamentoCheio(Estacionamento* est) {
     return est->topo == MAX_VAGAS - 1;
 }
@@ -55,6 +57,7 @@ void saiEstacionamento(Estacionamento* est, Carro* carro) {
     }
 }
 
+// Funções para fila
 void entraFila(Fila* fila, Carro carro) {
     Node* novo = (Node*)malloc(sizeof(Node));
     novo->carro = carro;
@@ -84,15 +87,18 @@ int filaVazia(Fila* fila) {
     return fila->frente == NULL;
 }
 
-void imprimeEstacionamento(Estacionamento* est) {
+// Funções de impressão
+void printEstac(Estacionamento* est) {
     printf("EST: ");
-    for (int i = 0; i <= est->topo; i++) {
-        printf("%s ", est->carros[i].placa);
+    if (!estacionamentoVazio(est)) {
+        for (int i = 0; i <= est->topo; i++) {
+            printf("%s ", est->carros[i].placa);
+        }
     }
     printf("\n");
 }
 
-void imprimeFila(Fila* fila) {
+void printWaitLine(Fila* fila) {
     printf("FIL: ");
     Node* atual = fila->frente;
     while (atual != NULL) {
@@ -139,8 +145,8 @@ int main() {
                 entraEstacionamento(&est, carroEntrando);
             }
         }
-        imprimeEstacionamento(&est);
-        imprimeFila(&fila);
+        printEstac(&est);
+        printWaitLine(&fila);
     }
 
     fclose(file);
