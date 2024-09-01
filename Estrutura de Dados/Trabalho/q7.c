@@ -2,155 +2,147 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define CAPACIDADE 10 // Capacidade do estacionamento
+#define MAX_VAGAS 10
+#define MAX_PLACA 8
 
-typedef struct Carro {
-    char placa[8];
+typedef struct {
+    char placa[MAX_PLACA];
 } Carro;
 
-typedef struct Estacionamento {
-    Carro vagas[CAPACIDADE];
-    int quantidade;
+typedef struct {
+    Carro carros[MAX_VAGAS];
+    int topo;
 } Estacionamento;
 
-typedef struct Fila {
-    Carro carros[CAPACIDADE];
-    int frente, tras, tamanho;
+typedef struct Node {
+    Carro carro;
+    struct Node* prox;
+} Node;
+
+typedef struct {
+    Node* frente;
+    Node* tras;
 } Fila;
 
-// Funções do estacionamento
-void inicializar_estacionamento(Estacionamento *estacionamento) {
-    estacionamento->quantidade = 0;
+void inicializaEstacionamento(Estacionamento* est) {
+    est->topo = -1;
 }
 
-int estacionamento_vazio(Estacionamento *estacionamento) {
-    return estacionamento->quantidade == 0;
+void inicializaFila(Fila* fila) {
+    fila->frente = NULL;
+    fila->tras = NULL;
 }
 
-int estacionamento_cheio(Estacionamento *estacionamento) {
-    return estacionamento->quantidade == CAPACIDADE;
+int estacionamentoCheio(Estacionamento* est) {
+    return est->topo == MAX_VAGAS - 1;
 }
 
-void adicionar_ao_estacionamento(Estacionamento *estacionamento, Carro carro) {
-    if (!estacionamento_cheio(estacionamento)) {
-        estacionamento->vagas[estacionamento->quantidade] = carro;
-        estacionamento->quantidade++;
+int estacionamentoVazio(Estacionamento* est) {
+    return est->topo == -1;
+}
+
+void entraEstacionamento(Estacionamento* est, Carro carro) {
+    if (!estacionamentoCheio(est)) {
+        est->topo++;
+        est->carros[est->topo] = carro;
     }
 }
 
-void remover_do_estacionamento(Estacionamento *estacionamento, char *placa) {
-    for (int i = 0; i < estacionamento->quantidade; i++) {
-        if (strcmp(estacionamento->vagas[i].placa, placa) == 0) {
-            for (int j = i; j < estacionamento->quantidade - 1; j++) {
-                estacionamento->vagas[j] = estacionamento->vagas[j + 1];
-            }
-            estacionamento->quantidade--;
-            break;
+void saiEstacionamento(Estacionamento* est, Carro* carro) {
+    if (!estacionamentoVazio(est)) {
+        *carro = est->carros[est->topo];
+        est->topo--;
+    }
+}
+
+void entraFila(Fila* fila, Carro carro) {
+    Node* novo = (Node*)malloc(sizeof(Node));
+    novo->carro = carro;
+    novo->prox = NULL;
+    if (fila->tras != NULL) {
+        fila->tras->prox = novo;
+    }
+    fila->tras = novo;
+    if (fila->frente == NULL) {
+        fila->frente = novo;
+    }
+}
+
+void saiFila(Fila* fila, Carro* carro) {
+    if (fila->frente != NULL) {
+        Node* temp = fila->frente;
+        *carro = temp->carro;
+        fila->frente = fila->frente->prox;
+        if (fila->frente == NULL) {
+            fila->tras = NULL;
         }
+        free(temp);
     }
 }
 
-void imprimir_estacionamento(Estacionamento *estacionamento) {
+int filaVazia(Fila* fila) {
+    return fila->frente == NULL;
+}
+
+void imprimeEstacionamento(Estacionamento* est) {
     printf("EST: ");
-    if (estacionamento_vazio(estacionamento)) {
-        printf("Vazio");
-    } else {
-        for (int i = 0; i < estacionamento->quantidade; i++) {
-            printf("%s ", estacionamento->vagas[i].placa);
-        }
+    for (int i = 0; i <= est->topo; i++) {
+        printf("%s ", est->carros[i].placa);
     }
     printf("\n");
 }
 
-// Funções da fila
-void inicializar_fila(Fila *fila) {
-    fila->frente = 0;
-    fila->tras = -1;
-    fila->tamanho = 0;
-}
-
-int fila_vazia(Fila *fila) {
-    return fila->tamanho == 0;
-}
-
-int fila_cheia(Fila *fila) {
-    return fila->tamanho == CAPACIDADE;
-}
-
-void enfileirar(Fila *fila, Carro carro) {
-    if (!fila_cheia(fila)) {
-        fila->tras = (fila->tras + 1) % CAPACIDADE;
-        fila->carros[fila->tras] = carro;
-        fila->tamanho++;
-    }
-}
-
-Carro desenfileirar(Fila *fila) {
-    Carro carro = fila->carros[fila->frente];
-    fila->frente = (fila->frente + 1) % CAPACIDADE;
-    fila->tamanho--;
-    return carro;
-}
-
-void imprimir_fila(Fila *fila) {
+void imprimeFila(Fila* fila) {
     printf("FIL: ");
-    if (fila_vazia(fila)) {
-        printf("Vazia");
-    } else {
-        for (int i = 0; i < fila->tamanho; i++) {
-            int index = (fila->frente + i) % CAPACIDADE;
-            printf("%s ", fila->carros[index].placa);
-        }
+    Node* atual = fila->frente;
+    while (atual != NULL) {
+        printf("%s ", atual->carro.placa);
+        atual = atual->prox;
     }
     printf("\n");
 }
 
 int main() {
-    Estacionamento estacionamento;
+    Estacionamento est;
     Fila fila;
-    FILE *arquivo;
-    char comando;
-    char placa[8];
+    inicializaEstacionamento(&est);
+    inicializaFila(&fila);
 
-    inicializar_estacionamento(&estacionamento);
-    inicializar_fila(&fila);
-
-    // Abrindo o arquivo de comandos
-    arquivo = fopen("estacionamento.txt", "r");
-    if (arquivo == NULL) {
+    FILE *file = fopen("estacionamento.txt", "r");
+    if (file == NULL) {
         perror("Erro ao abrir o arquivo");
         return 1;
     }
 
-    while (fscanf(arquivo, " %c %7s", &comando, placa) != EOF) {
-        Carro carro;
-        strcpy(carro.placa, placa);
+    char acao;
+    char placa[MAX_PLACA];
 
-        if (comando == 'E' || comando == 'e') {
-            if (estacionamento_cheio(&estacionamento)) {
-                printf("!! Lotado !!\n");
-                if (!fila_vazia(&fila)) {
-                    printf("!! Retira um da fila !!\n");
-                    Carro carro_fila = desenfileirar(&fila);
-                    remover_do_estacionamento(&estacionamento, carro_fila.placa);
-                }
-                enfileirar(&fila, carro);
+    while (fscanf(file, " %c %s", &acao, placa) != EOF) {
+        if (acao == 'E') {
+            printf("ENT: %s\n", placa);
+            Carro carro;
+            strcpy(carro.placa, placa);
+            if (estacionamentoCheio(&est)) {
+                printf("!!Lotado!!\n");
+                entraFila(&fila, carro);
             } else {
-                adicionar_ao_estacionamento(&estacionamento, carro);
+                entraEstacionamento(&est, carro);
             }
-        } else if (comando == 'S' || comando == 's') {
-            remover_do_estacionamento(&estacionamento, placa);
-            if (!fila_vazia(&fila)) {
-                Carro carro_fila = desenfileirar(&fila);
-                adicionar_ao_estacionamento(&estacionamento, carro_fila);
+        } else if (acao == 'S') {
+            printf("SAIDA: %s\n", placa);
+            Carro carroSaindo;
+            saiEstacionamento(&est, &carroSaindo);
+            if (!filaVazia(&fila)) {
+                Carro carroEntrando;
+                saiFila(&fila, &carroEntrando);
+                printf("!!Retira um da fila!!\n");
+                entraEstacionamento(&est, carroEntrando);
             }
         }
-
-        printf("ENT: %s\n", placa);
-        imprimir_estacionamento(&estacionamento);
-        imprimir_fila(&fila);
+        imprimeEstacionamento(&est);
+        imprimeFila(&fila);
     }
 
-    fclose(arquivo);
+    fclose(file);
     return 0;
 }
