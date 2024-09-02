@@ -2,7 +2,7 @@ import random
 import os
 import shutil
 import mysql.connector
-
+## Inicializar Atributos
 class SistemaOlimpico:
     def __init__(self):
         self.atletas = {}
