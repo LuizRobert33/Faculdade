@@ -289,3 +289,46 @@ class SistemaOlimpico:
 if __name__ == "__main__":
     sistema = SistemaOlimpico()
     sistema.menu()
+
+
+"""""
+-- Cria o banco de dados se não existir
+CREATE DATABASE IF NOT EXISTS sistema_olimpico;
+
+-- Usa o banco de dados criado
+USE sistema_olimpico;
+
+-- Cria a tabela de modalidades
+CREATE TABLE IF NOT EXISTS modalidades (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL
+);
+
+-- Cria a tabela de atletas
+CREATE TABLE IF NOT EXISTS atletas (
+    codigo INT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    sexo CHAR(1) NOT NULL,
+    id_modalidade INT,
+    FOREIGN KEY (id_modalidade) REFERENCES modalidades(id)
+);
+
+-- Cria a tabela de participações
+CREATE TABLE IF NOT EXISTS participacoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    codigo_atleta INT,
+    ano INT,
+    posicao INT,
+    medalha VARCHAR(50),
+    FOREIGN KEY (codigo_atleta) REFERENCES atletas(codigo)
+);
+
+
+SHOW DATABASES;
+USE sistema_olimpico;
+SHOW TABLES;
+
+
+
+
+"""
