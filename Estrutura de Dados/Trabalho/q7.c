@@ -1,154 +1,221 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define TAMANHO 10
 
-#define MAX_VAGAS 10
-#define MAX_PLACA 8
+typedef struct Pilha Pilha;
+typedef struct Carro Carro;
 
-typedef struct {
-    char placa[MAX_PLACA];
-} Carro;
+Pilha *criar_Estacionamento();
+Carro *criar_FilaDeEspera();
 
-typedef struct {
-    Carro carros[MAX_VAGAS];
-    int topo;
-} Estacionamento;
+int insertCarEstac(Pilha *p, char *placa);
+char *removeCarEstac(Pilha *p, Carro *c, char *placa);
 
-typedef struct Node {
-    Carro carro;
-    struct Node* prox;
-} Node;
+int nextCarWaitLine(Carro *c, int index);
 
-typedef struct {
-    Node* frente;
-    Node* tras;
-} Fila;
+void insertCarWaitLine(Carro *c, char *placa);
+char *removeCarWaitLine(Carro *c);
 
-// Funções de inicialização
-void inicializaEstacionamento(Estacionamento* est) {
-    est->topo = -1;
-}
+int carWaitLineIsFull(Carro *c);
+int carWaitLineIsEmpty(Carro *c);
 
-void inicializaFila(Fila* fila) {
-    fila->frente = NULL;
-    fila->tras = NULL;
-}
+int carEstacIsFull(Pilha *p);
+int carEstacIsEmpty(Pilha *p);
 
-// Funções para estacionamento
-int estacionamentoCheio(Estacionamento* est) {
-    return est->topo == MAX_VAGAS - 1;
-}
+void printEstac(Pilha *p);
+void printWaitLine(Carro *c);
 
-int estacionamentoVazio(Estacionamento* est) {
-    return est->topo == -1;
-}
+int searchCarInEstac(Pilha *p, char *placa);
 
-void entraEstacionamento(Estacionamento* est, Carro carro) {
-    if (!estacionamentoCheio(est)) {
-        est->topo++;
-        est->carros[est->topo] = carro;
-    }
-}
+struct Pilha {
+    int top;
+    int size;
+    char **placa;
+};
 
-void saiEstacionamento(Estacionamento* est, Carro* carro) {
-    if (!estacionamentoVazio(est)) {
-        *carro = est->carros[est->topo];
-        est->topo--;
-    }
-}
-
-// Funções para fila
-void entraFila(Fila* fila, Carro carro) {
-    Node* novo = (Node*)malloc(sizeof(Node));
-    novo->carro = carro;
-    novo->prox = NULL;
-    if (fila->tras != NULL) {
-        fila->tras->prox = novo;
-    }
-    fila->tras = novo;
-    if (fila->frente == NULL) {
-        fila->frente = novo;
-    }
-}
-
-void saiFila(Fila* fila, Carro* carro) {
-    if (fila->frente != NULL) {
-        Node* temp = fila->frente;
-        *carro = temp->carro;
-        fila->frente = fila->frente->prox;
-        if (fila->frente == NULL) {
-            fila->tras = NULL;
-        }
-        free(temp);
-    }
-}
-
-int filaVazia(Fila* fila) {
-    return fila->frente == NULL;
-}
-
-// Funções de impressão
-void printEstac(Estacionamento* est) {
-    printf("EST: ");
-    if (!estacionamentoVazio(est)) {
-        for (int i = 0; i <= est->topo; i++) {
-            printf("%s ", est->carros[i].placa);
-        }
-    }
-    printf("\n");
-}
-
-void printWaitLine(Fila* fila) {
-    printf("FIL: ");
-    Node* atual = fila->frente;
-    while (atual != NULL) {
-        printf("%s ", atual->carro.placa);
-        atual = atual->prox;
-    }
-    printf("\n");
-}
+struct Carro {
+    int begin;
+    int end;
+    char **placa;
+    int size;
+};
 
 int main() {
-    Estacionamento est;
-    Fila fila;
-    inicializaEstacionamento(&est);
-    inicializaFila(&fila);
-
+    Pilha *estacionamento = criar_Estacionamento();
+    Carro *filaDeEspera = criar_FilaDeEspera();
     FILE *file = fopen("estacionamento.txt", "r");
+    char operacao, placa[10];
+
     if (file == NULL) {
-        perror("Erro ao abrir o arquivo");
+        printf("Erro ao abrir o arquivo.\n");
         return 1;
     }
 
-    char acao;
-    char placa[MAX_PLACA];
-
-    while (fscanf(file, " %c %s", &acao, placa) != EOF) {
-        if (acao == 'E') {
+    while (fscanf(file, " %c %s", &operacao, placa) != EOF) {
+        if (operacao == 'E') {
             printf("ENT: %s\n", placa);
-            Carro carro;
-            strcpy(carro.placa, placa);
-            if (estacionamentoCheio(&est)) {
-                printf("!!Lotado!!\n");
-                entraFila(&fila, carro);
-            } else {
-                entraEstacionamento(&est, carro);
+            if (insertCarEstac(estacionamento, placa) == 0) {
+                insertCarWaitLine(filaDeEspera, placa);
             }
-        } else if (acao == 'S') {
+        } else if (operacao == 'S') {
             printf("SAIDA: %s\n", placa);
-            Carro carroSaindo;
-            saiEstacionamento(&est, &carroSaindo);
-            if (!filaVazia(&fila)) {
-                Carro carroEntrando;
-                saiFila(&fila, &carroEntrando);
-                printf("!!Retira um da fila!!\n");
-                entraEstacionamento(&est, carroEntrando);
-            }
+            removeCarEstac(estacionamento, filaDeEspera, placa);
         }
-        printEstac(&est);
-        printWaitLine(&fila);
+
+        printEstac(estacionamento);
+        printWaitLine(filaDeEspera);
+        printf("\n");
     }
 
     fclose(file);
     return 0;
+}
+
+Pilha *criar_Estacionamento() {
+    Pilha *p = malloc(sizeof(Pilha));
+    if (p) {
+        p->top = -1;
+        p->size = TAMANHO;
+        p->placa = malloc(TAMANHO * sizeof(char *));
+        for (int i = 0; i < TAMANHO; i++)
+            p->placa[i] = malloc(10 * sizeof(char));
+        return p;
+    }
+    return NULL;
+}
+
+Carro *criar_FilaDeEspera() {
+    Carro *c = malloc(sizeof(Carro));
+    if (c) {
+        c->end = -1;
+        c->begin = -1;
+        c->size = TAMANHO;
+        c->placa = malloc(TAMANHO * sizeof(char *));
+        for (int i = 0; i < TAMANHO; i++)
+            c->placa[i] = malloc(10 * sizeof(char));
+        return c;
+    }
+    return NULL;
+}
+
+int insertCarEstac(Pilha *p, char *placa) {
+    if (p) {
+        if (!carEstacIsFull(p)) {
+            p->top++;
+            strcpy(p->placa[p->top], placa);
+            return 1;
+        } else {
+            printf("!!Lotado!!\n");
+            return 0;
+        }
+    }
+    return 0;
+}
+
+char *removeCarEstac(Pilha *p, Carro *c, char *placa) {
+    char *carRemoved = malloc(10 * sizeof(char));
+    if (p) {
+        if (!carEstacIsEmpty(p)) {
+            if (strcmp(p->placa[p->top], placa) == 0) {
+                p->top--;
+                if (!carWaitLineIsEmpty(c)) {
+                    strcpy(carRemoved, removeCarWaitLine(c));
+                    insertCarEstac(p, carRemoved);
+                }
+                return placa;
+            } else {
+                if (searchCarInEstac(p, placa) == 0) {
+                    if (!carWaitLineIsEmpty(c)) {
+                        strcpy(carRemoved, removeCarWaitLine(c));
+                        insertCarEstac(p, carRemoved);
+                    }
+                    return placa;
+                }
+            }
+        }
+    }
+    return NULL;
+}
+
+int nextCarWaitLine(Carro *c, int index) {
+    if (c) {
+        return (index + 1) % c->size;
+    }
+    return 0;
+}
+
+void insertCarWaitLine(Carro *c, char *placa) {
+    int next;
+    if (c) {
+        if (!carWaitLineIsFull(c)) {
+            if (carWaitLineIsEmpty(c)) {
+                c->begin = c->end = 0;
+                strcpy(c->placa[c->begin], placa);
+            } else {
+                next = nextCarWaitLine(c, c->end);
+                strcpy(c->placa[next], placa);
+                c->end = next;
+            }
+        }
+    }
+}
+
+char *removeCarWaitLine(Carro *c) {
+    int next;
+    char *aux = malloc(10 * sizeof(char));
+    if (c) {
+        if (!carWaitLineIsEmpty(c)) {
+            strcpy(aux, c->placa[c->begin]);
+            strcpy(c->placa[c->begin], "\0");
+            if (c->begin == c->end) {
+                c->begin = c->end = -1;
+            } else {
+                next = nextCarWaitLine(c, c->begin);
+                c->begin = next;
+            }
+            printf("!!Retira um da fila!!\n");
+            return aux;
+        }
+    }
+    return NULL;
+}
+
+void printEstac(Pilha *p) {
+    printf("EST: ");
+    if (p && !carEstacIsEmpty(p)) {
+        for (int i = 0; i <= p->top; i++) {
+            printf("%s ", p->placa[i]);
+        }
+    }
+    printf("\n");
+}
+
+void printWaitLine(Carro *c) {
+    printf("FIL: ");
+    if (c && !carWaitLineIsEmpty(c)) {
+        int i = c->begin;
+        while (i != c->end) {
+            printf("%s ", c->placa[i]);
+            i = nextCarWaitLine(c, i);
+        }
+        printf("%s ", c->placa[c->end]);
+    }
+    printf("\n");
+}
+
+int carWaitLineIsFull(Carro *c) {
+    return c->begin == nextCarWaitLine(c, c->end);
+}
+
+int carWaitLineIsEmpty(Carro *c) {
+    return c->begin == -1;
+}
+
+int carEstacIsFull(Pilha *p) {
+    return p->top == p->size - 1;
+}
+
+int carEstacIsEmpty(Pilha *p) {
+    return p->top == -1;
 }
