@@ -1,4 +1,5 @@
 // Compilar gcc -std=c99 -Wall ppp.c qqq.c -o xxx
+// Compilar gcc main.c lista.c ou matriz.c
 
 #include "lista.h"
 //#include "matriz.h"
