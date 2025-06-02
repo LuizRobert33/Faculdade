@@ -1,4 +1,4 @@
-//Arquivo de implementações
+ //Arquivo de implementações
 
 #include <stdio.h>
 #include "matriz.h"
