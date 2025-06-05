@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Raycaster Didático</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; }
+        canvas { border: 1px solid black; }
+    </style>
+    <script type="text/javascript" src="math.js"></script>
+</head>
+<body>
+    <canvas id="raycastCanvas"></canvas>
+    <script>
+        
+        //BEGIN::FUNCOES E CLASSES UTEIS
+        // Função para desenhar um pixel no canvas
+        function drawPixel(x, y, color) {
+            if (ctx) {
+                ctx.fillStyle = color.toString(); // Define a cor de preenchimento
+                ctx.fillRect(x, y, 1, 1);    // Desenha um retângulo de 1x1 pixel
+            }
+        }
+
+
+        class Esfera {
+            constructor(x, y, z, r, cor = "red") {
+                this.x = x; // Coordenada x do centro da esfera
+                this.y = y; // Coordenada y do centro da esfera
+                this.z = z; // Coordenada z do centro da esfera
+                this.r = r; // Raio da esfera
+                this.cor = cor; // Cor da esfera
+            }
+        }
+        //END::FUNCOES E CLASSES UTEIS
+            
+        //BEGIN::CONFIGURA A VIEWPORT
+        const canvas = document.getElementById('raycastCanvas');
+        //alert(canvas.width + ", " + canvas.height);
+        
+        const imageWidth = 200; // Largura da imagem em pixels
+        const imageHeight = 100; // Altura da imagem em pixels
+        canvas.width = imageWidth;
+        canvas.height = imageHeight;
+        
+        //Obtém o contexto 2d para desenhar (gerar o pixel) no canvas
+        let ctx = null;
+        if (canvas.getContext) {
+            ctx = canvas.getContext('2d'); // Obtém o contexto de renderização 2D
+        } else {
+            console.error('HTML5 Canvas não é suportado neste navegador.');
+            // Código de fallback para navegadores sem suporte ao Canvas
+        }
+        //END::CONFIGURA A VIEWPORT
+       
+       //BEGIN::DEFINE OS OBJETOS DA CENA
+        let esfera1 = new Esfera(0, 0, -3, 1, "green"); // Cria uma esfera com centro na origem e raio 1
+        let esfera2 = new Esfera(0, 0, -10, 4, "blue");
+        let esfera3 = new Esfera(2, 0, -3, 1, "yellow");
+        
+
+        let esferas = [esfera1, esfera2, esfera3]
+        
+        let cameraPos = [0, 0, 0, 1]
+        
+        let ang = 15 * Math.PI/180.0;
+        
+        let cs = Math.cos(ang)
+        let sn = Math.sin(ang)
+        
+        let cameraMatriz = math.matrix(
+        [ 
+            [cs, 0, sn, 0], 
+            [0, 1, 0, 0], 
+            [-sn, 0, cs, 0], 
+            [0, 0, 0, 1] ])
+        
+        
+       //END::DEFINE OS OBJETOS DA CENA
+    
+        //BEGIN::RENDERIZA
+        
+        //Transformar pontos da tela em pontos do plano da imagem em relação ao SCU
+        //SCU = Sistema de Coordenadas do Mundo ou do Universo ou da Cena
+        
+        points = [] //pontos em coordenadas do mundo
+        screenPoints = [] //pontos correspondentes em coordenadas da tela
+        for (let i = 0; i < imageWidth; i++) {
+            for (let j = 0; j < imageHeight; j++) {
+                pNDCx = i + 0.5;
+                pNDCy = j + 0.5;
+                screenPoints.push([pNDCx, pNDCy]); //registramos o ponto a ser transformado como ponto de tela
+                
+                pScreenx = (pNDCx / imageWidth) * 2 - 1;
+                pScreeny = 1 - (pNDCy / imageHeight) * 2;
+                
+                aspectRatio = imageWidth / imageHeight;
+                let fov = Math.PI/2;
+                pixelCamerax = pScreenx * aspectRatio * Math.tan(fov / 2);
+                pixelCameray = pScreeny * Math.tan(fov / 2);
+                
+                pCameraSpace = [pixelCamerax, pixelCameray, -1];
+                pWorldSpace = [pCameraSpace[0], pCameraSpace[1], pCameraSpace[2]];
+
+                points.push(pWorldSpace);
+            }
+        }
+        
+        for (let i = 0; i < points.length; i++) {
+            let pWorldSpace = points[i];
+            let xp = pWorldSpace[0];
+            let yp = pWorldSpace[1];
+            let zp = pWorldSpace[2];
+    
+            let dx = (xp-cameraPos[0]);
+            let dy = (yp-cameraPos[1]);
+            let dz = (zp-cameraPos[2]);
+        
+            let D = math.multiply(cameraMatriz, math.matrix([dx, dy, dz, 1]) )._data 
+            
+            //console.log(D[0])
+            
+            dx = D[0]
+            dy = D[1]
+            dz = D[2]
+        
+        
+            let tmin = 100000000000
+            let corMin = null
+            let ponto = null;
+            for (let j = 0; j < esferas.length; j++)
+            {
+                let esfera = esferas[j];
+                let xc = esfera.x;
+                let yc = esfera.y;
+                let zc = esfera.z;
+                let r = esfera.r;
+                        
+                                
+                let a = dx * dx + dy * dy + dz * dz;
+                let b = 2 * (cameraPos[0] * dx - xc * dx + cameraPos[1] * dy -  yc * dy + cameraPos[2] * dz - zc * dz);
+                let c = Math.pow(cameraPos[0]-xc, 2) + Math.pow(cameraPos[1]-yc, 2) + Math.pow(cameraPos[2]-zc, 2) - r * r;
+                
+                let delta = b - 4 * a * c
+                
+                if (delta >= 0) {
+                    let t1 = (-b + Math.sqrt(delta)) / (2 * a);
+                    let t2 = (-b - Math.sqrt(delta)) / (2 * a);
+                    if (Math.max(t1, t2) > 0.01)
+                    {
+                        let t = Math.min(t1, t2);
+                        if (t < tmin)
+                        {
+                            tmin = t;
+                            corMin = esfera.cor.toString();
+                            ponto = [xc, yc, zc]
+                        }
+                    }
+                }
+            }
+            if (corMin != null)
+            {
+                let x = xp + tmin * (ponto[0] - xp);
+                let y = yp + tmin * (ponto[1] - yp);
+                let z = zp + tmin * (ponto[2] - zp);
+                
+                sx = screenPoints[i][0];
+                sy = screenPoints[i][1];
+                                
+                drawPixel(sx, sy, corMin);
+            }
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Raycaster Didático</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; }
+        canvas { border: 1px solid black; }
+    </style>
+    <!-- Certifique-se de incluir a biblioteca math.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+</head>
+<body>
+    <canvas id="raycastCanvas"></canvas>
+    <script>
+        // Função para desenhar um pixel no canvas
+        function drawPixel(x, y, color) {
+            if (ctx) {
+                ctx.fillStyle = color.toString();
+                ctx.fillRect(x, y, 1, 1);
+            }
+        }
+
+        class Esfera {
+            constructor(x, y, z, r, cor = "red") {
+                this.x = x;
+                this.y = y;
+                this.z = z;
+                this.r = r;
+                this.cor = cor;
+            }
+        }
+
+        const canvas = document.getElementById('raycastCanvas');
+        const imageWidth = 200;
+        const imageHeight = 100;
+        canvas.width = imageWidth;
+        canvas.height = imageHeight;
+
+        let ctx = null;
+        if (canvas.getContext) {
+            ctx = canvas.getContext('2d');
+        } else {
+            console.error('HTML5 Canvas não é suportado neste navegador.');
+        }
+
+        // MODIFICAÇÕES DO EXERCÍCIO: Renderizar múltiplas esferas
+        let esfera1 = new Esfera(0, 0, -3, 1, "green");
+        let esfera2 = new Esfera(0, 0, -10, 4, "blue");
+        let esfera3 = new Esfera(2, 0, -3, 1, "yellow");
+        let esferas = [esfera1, esfera2, esfera3];
+
+        // MODIFICAÇÕES DO EXERCÍCIO: Ajuste da câmera para visão de cima para baixo com leve inclinação
+        let cameraPos = [0, 5, 0, 1]; // Câmera posicionada acima da cena
+
+        let angX = -45 * Math.PI / 180.0; // Rotação de -45 graus em torno do eixo X
+        let angY = 30 * Math.PI / 180.0;  // Rotação de 30 graus em torno do eixo Y
+
+        let rotX = math.matrix([
+            [1, 0, 0, 0],
+            [0, Math.cos(angX), -Math.sin(angX), 0],
+            [0, Math.sin(angX), Math.cos(angX), 0],
+            [0, 0, 0, 1]
+        ]);
+
+        let rotY = math.matrix([
+            [Math.cos(angY), 0, Math.sin(angY), 0],
+            [0, 1, 0, 0],
+            [-Math.sin(angY), 0, Math.cos(angY), 0],
+            [0, 0, 0, 1]
+        ]);
+
+        let cameraMatriz = math.multiply(rotY, rotX); // Combinação das rotações
+
+        // Renderização
+        let points = [];
+        let screenPoints = [];
+        for (let i = 0; i < imageWidth; i++) {
+            for (let j = 0; j < imageHeight; j++) {
+                let pNDCx = i + 0.5;
+                let pNDCy = j + 0.5;
+                screenPoints.push([pNDCx, pNDCy]);
+
+                let pScreenx = (pNDCx / imageWidth) * 2 - 1;
+                let pScreeny = 1 - (pNDCy / imageHeight) * 2;
+
+                let aspectRatio = imageWidth / imageHeight;
+                let fov = Math.PI / 2;
+                let pixelCamerax = pScreenx * aspectRatio * Math.tan(fov / 2);
+                let pixelCameray = pScreeny * Math.tan(fov / 2);
+
+                let pCameraSpace = [pixelCamerax, pixelCameray, -1];
+                let pWorldSpace = [pCameraSpace[0], pCameraSpace[1], pCameraSpace[2]];
+
+                points.push(pWorldSpace);
+            }
+        }
+
+        for (let i = 0; i < points.length; i++) {
+            let pWorldSpace = points[i];
+            let xp = pWorldSpace[0];
+            let yp = pWorldSpace[1];
+            let zp = pWorldSpace[2];
+
+            let dx = (xp - cameraPos[0]);
+            let dy = (yp - cameraPos[1]);
+            let dz = (zp - cameraPos[2]);
+
+            let D = math.multiply(cameraMatriz, math.matrix([dx, dy, dz, 1]))._data;
+
+            dx = D[0];
+            dy = D[1];
+            dz = D[2];
+
+            let tmin = Infinity;
+            let corMin = null;
+            let ponto = null;
+            for (let j = 0; j < esferas.length; j++) {
+                let esfera = esferas[j];
+                let xc = esfera.x;
+                let yc = esfera.y;
+                let zc = esfera.z;
+                let r = esfera.r;
+
+                let a = dx * dx + dy * dy + dz * dz;
+                let b = 2 * (cameraPos[0] * dx - xc * dx + cameraPos[1] * dy - yc * dy + cameraPos[2] * dz - zc * dz);
+                let c = Math.pow(cameraPos[0] - xc, 2) + Math.pow(cameraPos[1] - yc, 2) + Math.pow(cameraPos[2] - zc, 2) - r * r;
+
+                // MODIFICAÇÕES DO EXERCÍCIO: Correção do cálculo do discriminante (delta)
+                let delta = b * b - 4 * a * c;
+
+                if (delta >= 0) {
+                    let t1 = (-b + Math.sqrt(delta)) / (2 * a);
+                    let t2 = (-b - Math.sqrt(delta)) / (2 * a);
+                    if (Math.max(t1, t2) > 0.01) {
+                        let t = Math.min(t1, t2);
+                        if (t < tmin) {
+                            tmin = t;
+                            corMin = esfera.cor.toString();
+                            ponto = [xc, yc, zc];
+                        }
+                    }
+                }
+            }
+            if (corMin != null) {
+                let x = xp + tmin * (ponto[0] - xp);
+                let y = yp + tmin * (ponto[1] - yp);
+                let z = zp + tmin * (ponto[2] - zp);
+
+                let sx = screenPoints[i][0];
+                let sy = screenPoints[i][1];
+
+                drawPixel(sx, sy, corMin);
+            }
+        }
+    </script>
+</body>
+</html>
