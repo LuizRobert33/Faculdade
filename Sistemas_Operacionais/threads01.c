@@ -3,7 +3,8 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define NUM_FILHOS 2
+// #define NUM_FILHOS 2  // para testar com poucos filhos
+ #define NUM_FILHOS 100  // para testar com muitos filhos
 
 void* func_filho(void* arg) {
     int id = *((int*)arg);
