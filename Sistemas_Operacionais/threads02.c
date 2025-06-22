@@ -24,7 +24,7 @@ void *produtor(void *arg) {
     int id = *(int *)arg;
 
     while (1) {
-        while (turn != 0); // espera sua vez
+        while (turn != 0); 
         pthread_mutex_lock(&mutex);
 
         for (int i = 0; i < TAM_VETOR; i++) {
@@ -34,9 +34,9 @@ void *produtor(void *arg) {
             in = (in + 1) % TAM_VETOR;
         }
         imprimir_vetor();
-        usleep(300000); // pausa
+        usleep(300000); 
 
-        turn = 1; // passa a vez para consumidor
+        turn = 1; 
         pthread_mutex_unlock(&mutex);
         break;
     }
@@ -48,7 +48,7 @@ void *consumidor(void *arg) {
     int id = *(int *)arg;
 
     while (1) {
-        while (turn != 1); // espera sua vez
+        while (turn != 1); 
         pthread_mutex_lock(&mutex);
 
         for (int i = 0; i < TAM_VETOR; i++) {
@@ -58,9 +58,9 @@ void *consumidor(void *arg) {
             out = (out + 1) % TAM_VETOR;
         }
         imprimir_vetor();
-        usleep(300000); // pausa
+        usleep(300000); 
 
-        turn = 0; // volta a vez para produtor
+        turn = 0; 
         pthread_mutex_unlock(&mutex);
         break;
     }
