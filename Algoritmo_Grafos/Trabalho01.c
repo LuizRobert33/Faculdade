@@ -525,13 +525,214 @@ static void dfsR(Graph G, vertex v) {
 
 
 //06º questão
+/*
 
 3-4 -> retorno
 0-5 -> avanço
 5-3 -> árvore
 4-1 -> cruzado
 
+*/
+// 07º questão
 
 
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+// Estruturas para grafo por listas de adjacência
+typedef struct AdjNode {
+    int vertex;
+    struct AdjNode* next;
+} AdjNode;
+
+typedef struct GraphDFS {
+    int numVertices;
+    AdjNode** adjLists;
+    int* pre;    // ordem de pré-visita
+    int* post;   // ordem de pós-visita
+    int* pa;     // pai na árvore DFS
+    int cnt;     // contador de pré-visita
+    int cntt;    // contador de pós-visita
+    char ident[100];
+} GraphDFS;
+
+// Criação do grafo
+GraphDFS* createGraphDFS(int vertices) {
+    GraphDFS* graph = (GraphDFS*)malloc(sizeof(GraphDFS));
+    graph->numVertices = vertices;
+    graph->adjLists = (AdjNode**)malloc(vertices * sizeof(AdjNode*));
+    graph->pre = (int*)malloc(vertices * sizeof(int));
+    graph->post = (int*)malloc(vertices * sizeof(int));
+    graph->pa = (int*)malloc(vertices * sizeof(int));
+    graph->cnt = 0;
+    graph->cntt = 0;
+    graph->ident[0] = '\0';
+    for (int i = 0; i < vertices; i++) {
+        graph->adjLists[i] = NULL;
+        graph->pre[i] = -1;
+        graph->post[i] = -1;
+        graph->pa[i] = -1;
+    }
+    return graph;
+}
+
+// Adiciona aresta direcionada
+void addEdgeDFS(GraphDFS* graph, int src, int dest) {
+    AdjNode* newNode = (AdjNode*)malloc(sizeof(AdjNode));
+    newNode->vertex = dest;
+    newNode->next = graph->adjLists[src];
+    graph->adjLists[src] = newNode;
+}
+
+// Função recursiva auxiliar
+void dfsR(GraphDFS* G, int v) {
+    G->pre[v] = G->cnt++;
+    AdjNode* temp = G->adjLists[v];
+    while (temp != NULL) {
+        int w = temp->vertex;
+        printf("%s%d-%d", G->ident, v, w);
+        if (G->pre[w] == -1) {
+            printf(" dfsR(G,%d)\n", w);
+            G->pa[w] = v;
+            strcat(G->ident, " . ");
+            dfsR(G, w);
+            G->ident[strlen(G->ident) - 3] = '\0';
+        } else {
+            printf("\n");
+        }
+        temp = temp->next;
+    }
+    G->post[v] = G->cntt++;
+    printf("%s%d\n", G->ident, v);
+}
+
+// Função principal de DFS
+void GRAPHdfs(GraphDFS* G) {
+    G->cnt = G->cntt = 0;
+    G->ident[0] = '\0';
+    for (int v = 0; v < G->numVertices; ++v)
+        G->pre[v] = -1;
+    for (int v = 0; v < G->numVertices; ++v) {
+        if (G->pre[v] == -1) {
+            G->pa[v] = v;
+            printf("%d-dfsR(G,%d)\n", v, v);
+            G->ident[0] = '\0';
+            dfsR(G, v);
+        }
+    }
+}
+
+// Função para liberar memória
+void freeGraphDFS(GraphDFS* graph) {
+    for (int i = 0; i < graph->numVertices; i++) {
+        AdjNode* current = graph->adjLists[i];
+        while (current != NULL) {
+            AdjNode* next = current->next;
+            free(current);
+            current = next;
+        }
+    }
+    free(graph->adjLists);
+    free(graph->pre);
+    free(graph->post);
+    free(graph->pa);
+    free(graph);
+}
+ // 08° questão
+ #include <stdio.h>
+#include <stdlib.h>
+
+#define N 10 // número máximo de vértices (0 a 9)
+
+void bfs(int adj[N][N], int n, int start) {
+    int num[N];
+    int fila[N];
+    int ini = 0, fim = 0;
+    int ordem[N];
+    int ordem_idx = 0;
+
+    for (int i = 0; i < n; i++) num[i] = -1;
+
+    num[start] = 0;
+    fila[fim++] = start;
+    ordem[ordem_idx++] = start;
+
+    int passo = 1;
+    while (ini < fim) {
+        int v = fila[ini++];
+        for (int w = 0; w < n; w++) {
+            if (adj[v][w] && num[w] == -1) {
+                num[w] = passo++;
+                fila[fim++] = w;
+                ordem[ordem_idx++] = w;
+            }
+        }
+    }
+
+    printf("Vetor num[]:\n");
+    for (int i = 0; i < n; i++) {
+        printf("num[%d] = %d\n", i, num[i]);
+    }
+
+    printf("\nOrdem de descoberta dos vértices:\n");
+    for (int i = 0; i < ordem_idx; i++) {
+        printf("%d ", ordem[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int n = 10; // vértices de 0 a 9
+    int adj[N][N] = {0};
+
+    // Adicionando as arestas do enunciado (grafo não-dirigido)
+    int arestas[][2] = {
+        {0,1}, {1,2}, {1,4}, {2,3}, {2,4}, {2,9}, {3,4},
+        {4,5}, {4,6}, {4,7}, {5,6}, {7,8}, {7,9}
+    };
+    int m = sizeof(arestas)/sizeof(arestas[0]);
+    for (int i = 0; i < m; i++) {
+        int u = arestas[i][0], v = arestas[i][1];
+        adj[u][v] = adj[v][u] = 1;
+    }
+
+    printf("Busca em largura a partir do vértice 0:\n");
+    bfs(adj, n, 0);
+
+    return 0;
+}
+// 09° questão
+#include <stdio.h>
+#include <stdlib.h>
+
+#define N 100 // ajuste conforme o máximo de vértices do seu grafo
+
+void GRAPHbfs(int adj[N][N], int n, int start, int num[N]) {
+    int fila[N];
+    int ini = 0, fim = 0;
+    for (int i = 0; i < n; i++) num[i] = -1;
+
+    num[start] = 0;
+    fila[fim++] = start;
+    int passo = 1;
+
+    while (ini < fim) {
+        int v = fila[ini++];
+        for (int w = 0; w < n; w++) {
+            if (adj[v][w] && num[w] == -1) {
+                num[w] = passo++;
+                fila[fim++] = w;
+            }
+        }
+    }
+}
+// 10° questão
+
+/*
+Não, uma árvore de busca em largura não será sempre um subgrafo gerador. Um subgrafo gerador é um subgrafo que contém todos os vértices do grafo original. No entanto, durante uma busca em largura, partindo de um vértice v, pode acontecer de nem todos os vértices serem alcançáveis a partir de v, especialmente se o grafo for não conexo (em grafos não direcionados) ou não fortemente conectado (em grafos direcionados).
+*/
 
 
