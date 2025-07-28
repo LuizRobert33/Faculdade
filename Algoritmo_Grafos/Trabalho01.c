@@ -1,4 +1,4 @@
-//01
+//01 questão
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -108,7 +108,7 @@ int main() {
 
     return 0;
 }
-//02
+//02 questão
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -267,7 +267,271 @@ int main() {
 
     return 0;
 }
-//03
+//03° questão
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+
+typedef struct Node {
+    int vertexIndex; 
+    struct Node* next;
+} Node;
+
+
+typedef struct Graph {
+    int numVertices;
+    Node** adjLists;     
+    bool* visited;      
+    int* preOrder;      
+    int* postOrder;    
+    int time;            
+    int* vertexValues;  
+    int* valueToIndexMap; 
+    int maxValue;       
+} Graph;
+
+
+Node* createNode(int vIndex) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->vertexIndex = vIndex;
+    newNode->next = NULL;
+    return newNode;
+}
+
+
+Graph* createGraph(int numVertices, int* initialVertexValues) {
+    Graph* graph = (Graph*)malloc(sizeof(Graph));
+    graph->numVertices = numVertices;
+
+    graph->adjLists = (Node**)malloc(numVertices * sizeof(Node*));
+    graph->visited = (bool*)malloc(numVertices * sizeof(bool));
+    graph->preOrder = (int*)malloc(numVertices * sizeof(int));
+    graph->postOrder = (int*)malloc(numVertices * sizeof(int));
+    graph->time = 1; 
+
+   
+    graph->maxValue = 0;
+    for (int i = 0; i < numVertices; i++) {
+        if (initialVertexValues[i] > graph->maxValue) {
+            graph->maxValue = initialVertexValues[i];
+        }
+    }
+    
+    graph->valueToIndexMap = (int*)malloc((graph->maxValue + 1) * sizeof(int));
+    for (int i = 0; i <= graph->maxValue; i++) {
+        graph->valueToIndexMap[i] = -1; 
+    }
+
+    graph->vertexValues = (int*)malloc(numVertices * sizeof(int));
+
+    for (int i = 0; i < numVertices; i++) {
+        graph->adjLists[i] = NULL;
+        graph->visited[i] = false;
+        graph->preOrder[i] = 0;
+        graph->postOrder[i] = 0;
+        graph->vertexValues[i] = initialVertexValues[i];
+        graph->valueToIndexMap[initialVertexValues[i]] = i; 
+    }
+    return graph;
+}
+
+
+void addEdge(Graph* graph, int v1_value, int v2_value) {
+    int v1_index = graph->valueToIndexMap[v1_value];
+    int v2_index = graph->valueToIndexMap[v2_value];
+
+    if (v1_index == -1 || v2_index == -1) {
+        printf("Erro: Tentativa de adicionar aresta com valor de vertice nao mapeado.\n");
+        return;
+    }
+
+    Node* newNode = createNode(v2_index);
+    newNode->next = graph->adjLists[v1_index]; 
+    graph->adjLists[v1_index] = newNode;
+}
+
+
+void DFS(Graph* graph, int vertexIndex) {
+    graph->visited[vertexIndex] = true;
+    graph->preOrder[vertexIndex] = graph->time++;
+
+    
+    Node* temp = graph->adjLists[vertexIndex];
+    while (temp != NULL) {
+        int connectedVertexIndex = temp->vertexIndex;
+        if (!graph->visited[connectedVertexIndex]) {
+            DFS(graph, connectedVertexIndex);
+        }
+        temp = temp->next;
+    }
+
+    
+    graph->postOrder[vertexIndex] = graph->time++;
+}
+
+void calculateOrders(Graph* graph) {
+
+    int startVertices[] = {7, 5, 3};
+    int numStartVertices = sizeof(startVertices) / sizeof(startVertices[0]);
+
+    for (int i = 0; i < numStartVertices; i++) {
+        int startVertexValue = startVertices[i];
+        int startVertexIndex = graph->valueToIndexMap[startVertexValue];
+        if (startVertexIndex != -1 && !graph->visited[startVertexIndex]) {
+            DFS(graph, startVertexIndex);
+        }
+    }
+
+    for (int i = 0; i < graph->numVertices; i++) {
+        if (!graph->visited[i]) {
+            DFS(graph, i);
+        }
+    }
+}
+
+void printOrders(Graph* graph) {
+    printf("Numeracoes em Pre-Ordem e Pos-Ordem:\n");
+    printf("-------------------------------------\n");
+    for (int i = 0; i < graph->numVertices; i++) {
+        printf("Vertice %d (indice %d):\n", graph->vertexValues[i], i);
+        printf("  Pre-Ordem: %d\n", graph->preOrder[i]);
+        printf("  Pos-Ordem: %d\n", graph->postOrder[i]);
+        printf("-------------------------------------\n");
+    }
+}
+
+void freeGraph(Graph* graph) {
+    for (int i = 0; i < graph->numVertices; i++) {
+        Node* current = graph->adjLists[i];
+        while (current != NULL) {
+            Node* next = current->next;
+            free(current);
+            current = next;
+        }
+    }
+    free(graph->adjLists);
+    free(graph->visited);
+    free(graph->preOrder);
+    free(graph->postOrder);
+    free(graph->vertexValues);
+    free(graph->valueToIndexMap);
+    free(graph);
+}
+
+int main() {
+    
+    int initialVertexValues[] = {2, 3, 5, 7, 8, 9, 10, 11};
+    int numVertices = sizeof(initialVertexValues) / sizeof(initialVertexValues[0]);
+
+    Graph* graph = createGraph(numVertices, initialVertexValues);
+
+
+    addEdge(graph, 7, 11);
+    addEdge(graph, 7, 8);
+    addEdge(graph, 5, 11);
+    addEdge(graph, 5, 9);
+    addEdge(graph, 3, 8);
+    addEdge(graph, 3, 10);
+    addEdge(graph, 11, 2);
+    addEdge(graph, 11, 9);
+    addEdge(graph, 11, 10);
+    addEdge(graph, 8, 10);
+    addEdge(graph, 9, 2);
+
+    printf("Grafo criado. Calculando numeracoes...\n\n");
+
+    calculateOrders(graph);
+
+    printOrders(graph);
+
+    freeGraph(graph);
+
+    return 0;
+}
+// 04º questão
+
+ void classificaArcos(Graph G){
+
+    for (int v = 0; v < G->V ; ++v){
+      for (link a = G->adj[v]; a != NULL; a = a->next) {
+        vertex w = a->w;
+
+        if (pre[v] < pre[w] && post[v] > post[w] && pa[w] == v)
+          printf("%d-%d árvore\n", v, w);
+
+        else if (pre[v] < pre[w] && post[v] > post[w])
+          printf("%d-%d avanço\n", v, w);
+
+        else if (pre[v] > pre[w] && post[v] < post[w])
+          printf("%d-%d retorno\n", v, w);
+
+        else
+          printf("%d-%d cruzado\n", v, w);
+    }
+  }
+}
+
+
+
+// 05º questão
+
+char ident[100];
+
+void GRAPHdfs(Graph G) {
+    cnt = cntt = 0;
+    ident[0] = '\0';
+
+    for (vertex v = 0; v < G->V; ++v)
+        pre[v] = -1;
+
+    for (vertex v = 0; v < G->V; ++v) {
+        if (pre[v] == -1) {
+            pa[v] = v;
+            printf("%d-dfsR(G,%d)\n", v, v);
+            ident[0] = '\0';
+            dfsR(G, v);
+        }
+    }
+}
+
+static void dfsR(Graph G, vertex v) {
+    pre[v] = cnt++;
+
+    for (link a = G->adj[v]; a != NULL; a = a->next) {
+        vertex w = a->w;
+
+        printf("%s%d-%d", ident, v, w);
+
+        if (pre[w] == -1) {
+            printf(" dfsR(G,%d)\n", w);
+            pa[w] = v;
+
+            strcat(ident, " . ");
+            dfsR(G, w);
+
+            ident[strlen(ident) - 3] = '\0';
+        } else {
+            printf("\n");
+        }
+    }
+
+    post[v] = cntt++;
+
+    printf("%s%d\n", ident, v);
+}
+
+
+
+//06º questão
+
+3-4 -> retorno
+0-5 -> avanço
+5-3 -> árvore
+4-1 -> cruzado
+
+
 
 
 
