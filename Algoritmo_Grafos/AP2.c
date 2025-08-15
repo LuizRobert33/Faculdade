@@ -89,14 +89,191 @@ Instâncias extremas — análise da função GRAPHreach(G, s, t):
    - Qualquer outro par (s, t) é inválido.
 */
 // Questão 03
+#include <stdio.h>
+#include <stdlib.h>
 
+
+#define NUM_NODES 8 
+
+
+int get_index(int label, const int labels[]) {
+    for (int i = 0; i < NUM_NODES; i++) {
+        if (labels[i] == label) {
+            return i;
+        }
+    }
+    return -1; 
+}
+
+
+int get_label(int index, const int labels[]) {
+    if (index >= 0 && index < NUM_NODES) {
+        return labels[index];
+    }
+    return -1; 
+}
+
+
+void resolver_questao3() {
+    printf("----------------------------------------\n");
+    printf("Resolvendo a Questão 3\n");
+    printf("----------------------------------------\n\n");
+
+   
+    const int labels[NUM_NODES] = {2, 3, 5, 7, 8, 9, 10, 11};
+
+    
+    int edges[][2] = {
+        {7, 11}, {7, 8},
+        {5, 11}, {5, 8},
+        {3, 8}, {3, 10},
+        {11, 2}, {11, 9}, {11, 10},
+        {8, 9}
+    };
+    int num_edges = sizeof(edges) / sizeof(edges[0]);
+
+    
+    int adj[NUM_NODES][NUM_NODES] = {0};
+    int in_degree[NUM_NODES] = {0};
+
+    
+    for (int i = 0; i < num_edges; i++) {
+        int u_label = edges[i][0];
+        int v_label = edges[i][1];
+        int u_idx = get_index(u_label, labels);
+        int v_idx = get_index(v_label, labels);
+
+        if (u_idx != -1 && v_idx != -1 && adj[u_idx][v_idx] == 0) {
+            adj[u_idx][v_idx] = 1;
+            in_degree[v_idx]++;
+        }
+    }
+
+    
+    int queue[NUM_NODES];
+    int front = 0, rear = 0;
+
+    
+    for (int i = 0; i < NUM_NODES; i++) {
+        if (in_degree[i] == 0) {
+            queue[rear++] = i;
+        }
+    }
+
+    int topo_order_indices[NUM_NODES];
+    int count = 0;
+
+    while (front < rear) {
+        int u_idx = queue[front++];
+        topo_order_indices[count++] = u_idx;
+
+        
+        for (int v_idx = 0; v_idx < NUM_NODES; v_idx++) {
+            if (adj[u_idx][v_idx] == 1) {
+                
+                in_degree[v_idx]--;
+                
+                if (in_degree[v_idx] == 0) {
+                    queue[rear++] = v_idx;
+                }
+            }
+        }
+    }
+
+    if (count != NUM_NODES) {
+        printf("Erro: O grafo contém um ciclo! A ordenação topológica não é possível.\n");
+        return;
+    }
+
+  
+    printf("1. Permutação Topológica:\n");
+    for (int i = 0; i < NUM_NODES; i++) {
+        printf("%d ", get_label(topo_order_indices[i], labels));
+    }
+    printf("\n\n");
+
+
+    printf("2. Numeração Topológica (Vértice -> Número):\n");
+    int topo_numbering[12] = {0}; 
+    for (int i = 0; i < NUM_NODES; i++) {
+         int label = get_label(topo_order_indices[i], labels);
+         topo_numbering[label] = i;
+         printf("%d -> %d\n", label, i);
+    }
+    printf("\n");
+
+    
+    printf("3. Permutação Anti-topológica:\n");
+    for (int i = NUM_NODES - 1; i >= 0; i--) {
+        printf("%d ", get_label(topo_order_indices[i], labels));
+    }
+    printf("\n\n");
+
+    
+    printf("4. Numeração Anti-topológica (Vértice -> Número):\n");
+    for (int i = 0; i < NUM_NODES; i++) {
+        int label = get_label(topo_order_indices[i], labels);
+        int anti_topo_num = NUM_NODES - 1 - topo_numbering[label];
+        printf("%d -> %d\n", label, anti_topo_num);
+    }
+    printf("\n");
+}
 
 
 
 
 
 // Questão 04
+/*
+#include <stdio.h
 
+    
+    int pre[] = {0, 1, 5, 4, 2, 3};
+    
+    int post[] = {4, 0, 5, 1, 3, 2};
+
+    
+    int arcos[][2] = {
+        {3, 4},
+        {0, 5},
+        {5, 3},
+        {4, 1}
+    };
+    int num_arcos = sizeof(arcos) / sizeof(arcos[0]);
+
+    printf("Classificação dos arcos com base nos tempos da DFS:\n\n");
+
+    for (int i = 0; i < num_arcos; i++) {
+        int u = arcos[i][0];
+        int v = arcos[i][1];
+
+        printf("Analisando o arco %d -> %d:\n", u, v);
+
+        
+        int pre_u = pre[u];
+        int post_u = post[u];
+        int pre_v = pre[v];
+        int post_v = post[v];
+
+        printf("  (pre[%d]=%d, post[%d]=%d), (pre[%d]=%d, post[%d]=%d)\n", u, pre_u, u, post_u, v, pre_v, v, post_v);
+
+        
+        if (pre_u < pre_v && post_v < post_u) {
+            printf("  -> Classificação: Aresta de Árvore ou Avanço (Tree/Forward Edge)\n\n");
+        } else if (pre_v < pre_u && post_u < post_v) {
+            printf("  -> Classificação: Aresta de Retorno (Back Edge)\n\n");
+        } else if (post_v < pre_u || post_u < pre_v) {
+            printf("  -> Classificação: Aresta de Cruzamento (Cross Edge)\n\n");
+        } else {
+            
+            printf("  -> Classificação: Indeterminada (dados anômalos)\n\n");
+        }
+    }
+}
+
+
+
+*/
 
 
 
